@@ -66,12 +66,6 @@ esbuild.build({
 		const pluginJs = `${pluginPath}${mainJs}`
 		const pluginManifest = `${pluginPath}${manifest}`
 
-		if (fs.existsSync(compileJs)) {
-			console.log('load js: ', pluginJs)
-			fs.createReadStream(compileJs).pipe(fs.createWriteStream(pluginJs));
-		}
-		if (fs.existsSync(manifestLocal)) {
-			console.log('load manifest')
-			fs.createReadStream(manifestLocal).pipe(fs.createWriteStream(pluginManifest));
-		}
+		fs.createReadStream(compileJs).pipe(fs.createWriteStream(pluginJs))
+		fs.createReadStream(manifestLocal).pipe(fs.createWriteStream(pluginManifest))
 	})
