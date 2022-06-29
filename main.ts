@@ -1,7 +1,8 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import {SampleModal} from "./src/SampleModal";
+import {SampleSettingTab} from "./src/SampleSettingTab";
 
-// Remember to rename these classes and interfaces!
-
+// 这是示例项目，也是了解插件的开始
 interface MyPluginSettings {
 	mySetting: string;
 }
@@ -9,7 +10,7 @@ interface MyPluginSettings {
 const DEFAULT_SETTINGS: MyPluginSettings = {
 	mySetting: 'default'
 }
-
+// 主要的两个钩子 onload 与 onunload，也可以说是生命周期函数，顺序是 onload => onunload
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 
@@ -19,7 +20,7 @@ export default class MyPlugin extends Plugin {
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
+			new Notice('Wow wow kk');
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
@@ -28,7 +29,9 @@ export default class MyPlugin extends Plugin {
 		const statusBarItemEl = this.addStatusBarItem();
 		statusBarItemEl.setText('Status Bar Text');
 
-		// This adds a simple command that can be triggered anywhere
+		// addCommand 增加命令选项，在你使用 ctrl/comd + p 时，或者开启 / 扩展时的命令，使用起来几乎是必备的方便
+
+		// 这条命令可以在任何位置运行，只要你打开运行窗口
 		this.addCommand({
 			id: 'open-sample-modal-simple',
 			name: 'Open sample modal (simple)',
@@ -36,7 +39,7 @@ export default class MyPlugin extends Plugin {
 				new SampleModal(this.app).open();
 			}
 		});
-		// This adds an editor command that can perform some operation on the current editor instance
+		// editorCallback 是针对编辑器的命令，这是当前的编辑器
 		this.addCommand({
 			id: 'sample-editor-command',
 			name: 'Sample editor command',
@@ -45,7 +48,7 @@ export default class MyPlugin extends Plugin {
 				editor.replaceSelection('Sample Editor Command');
 			}
 		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
+		// checkCallback 会给你一个检查，用于多次重复的验证？比如你只能打开一个弹窗，已经打开就不用再打开
 		this.addCommand({
 			id: 'open-sample-modal-complex',
 			name: 'Open sample modal (complex)',
@@ -65,8 +68,10 @@ export default class MyPlugin extends Plugin {
 			}
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
+		// 这是提供设置选项的插件加载，
 		this.addSettingTab(new SampleSettingTab(this.app, this));
+
+		// 最后两个是为了配合obsidian的内部函数，用于注册全局事件，和使用setInterval
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -78,60 +83,18 @@ export default class MyPlugin extends Plugin {
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 	}
 
-	onunload() {
+	async onunload() {
 
 	}
 
+	// 加载插件设置，必须在加载插件 onLoad 的时候就使用它，
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
 
+ // 这并不知道是用来干嘛的，因为 Plugin 目前并未声明它
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
 }
 
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Hi Are you OK'});
-
-		new Setting(containerEl)
-			.setName('Setting Plugin')
-			.setDesc('a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
-	}
-}
