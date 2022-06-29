@@ -1,5 +1,5 @@
 # vscode
-.vscode 
+.vscode
 
 # Intellij
 *.iml
@@ -20,3 +20,17 @@ data.json
 
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
+
+.history
+*.local
+*.map.js
+dist
+
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+logs
+*.log
