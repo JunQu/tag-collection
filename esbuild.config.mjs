@@ -1,6 +1,7 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from 'builtin-modules'
+import fs from 'fs'
 
 const banner =
 `/*
@@ -46,10 +47,31 @@ esbuild.build({
 		'@lezer/lr',
 		...builtins],
 	format: 'cjs',
-	watch: !prod,
-	target: 'es2016',
+	// watch: !prod,
+	target: 'es2020',
 	logLevel: "info",
 	sourcemap: prod ? false : 'inline',
 	treeShaking: true,
 	outfile: 'main.js',
-}).catch(() => process.exit(1));
+})
+	.catch(() => process.exit(1))
+	.finally(async ()=>{
+		const mainJs = 'main.js'
+		const manifest = 'manifest.json'
+		const pluginPath = '../../obsidian-test/ob-plugins/ob-plugin/.obsidian/plugins/obsidian-tag-collection/'
+
+		const compileJs = `./${mainJs}`
+		const manifestLocal = `./${manifest}`
+
+		const pluginJs = `${pluginPath}${mainJs}`
+		const pluginManifest = `${pluginPath}${manifest}`
+
+		if (fs.existsSync(compileJs)) {
+			console.log('load js: ', pluginJs)
+			fs.createReadStream(compileJs).pipe(fs.createWriteStream(pluginJs));
+		}
+		if (fs.existsSync(manifestLocal)) {
+			console.log('load manifest')
+			fs.createReadStream(manifestLocal).pipe(fs.createWriteStream(pluginManifest));
+		}
+	})
